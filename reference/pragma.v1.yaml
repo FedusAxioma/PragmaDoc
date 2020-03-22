@@ -1,0 +1,311 @@
+info:
+  title: pragma
+  version: '1.0'
+  description: All endpoints for Pragma project.
+paths:
+  /users:
+    get:
+      summary: List Users
+      tags:
+        - users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+              examples:
+                Retrieve list of users:
+                  value:
+                    - id: 1
+                      username: john.doe
+                      password: ''
+                      scope: ADMIN
+                      enabled: true
+                      alreadyLogged: true
+                    - id: 2
+                      username: john.doe2
+                      password: ''
+                      scope: MARKETING
+                      enabled: true
+                      alreadyLogged: false
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  '':
+                    type: string
+      operationId: get-users
+      description: List all users. Only allowed for Admin.
+      parameters:
+        - schema:
+            type: integer
+            minimum: 1
+          in: query
+          name: limit
+        - schema:
+            type: integer
+            minimum: 0
+          in: query
+          name: offset
+        - schema:
+            type: string
+          in: query
+          name: orderByField
+        - schema:
+            type: string
+          in: query
+          name: orderByDirection
+    post:
+      summary: Create User
+      operationId: post-users
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: Id for new user
+              examples:
+                New user created:
+                  value: 18
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Error 400 due to required fields:
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: 'child "body" fails because [child "username" fails because ["username" is required]]'
+      description: Create new user. Only allowed for Admin.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: ''
+    parameters: []
+  /auth/scopes:
+    get:
+      summary: List Scopes
+      tags:
+        - auth
+      responses:
+        '200':
+          description: "['ADMIN', 'EDITOR', 'MARKETING', 'THERAPIST', 'CLIENT']"
+      operationId: get-auth
+      description: 'List all possible scopes. Only used by ADMIN user to give permissions to other users. '
+    parameters: []
+  /auth/login:
+    post:
+      summary: Login
+      operationId: post-auth-login
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  expiresIn:
+                    type: integer
+                  refreshToken:
+                    type: string
+                  tokenType:
+                    type: string
+                    enum:
+                      - Bearer
+              examples:
+                Login successfull:
+                  value:
+                    accessToken: 795c92371766923d46e24fa276df64f2b3e5317f
+                    expiresIn: 3599
+                    refreshToken: d50e10d775f36b439b899f9cefa4e762ce0f933b
+                    tokenType: Bearer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    enum:
+                      - 400
+                  error:
+                    type: string
+                  message:
+                    type: string
+              examples:
+                Wrong User or Password:
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: 'Invalid client: client is invalid'
+      description: Available for users to login to the system.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - client_id
+                - client_secret
+                - grant_type
+              properties:
+                client_id:
+                  type: string
+                client_secret:
+                  type: string
+                grant_type:
+                  type: string
+                  enum:
+                    - facebook
+                    - google
+                    - password
+                accessToken:
+                  type: string
+                  description: 'If grant_type === facebook, then this field is required!'
+                idToken:
+                  type: string
+                  description: 'If grant_type === google, then this field is required!'
+                password:
+                  type: string
+                  description: 'If grant_type === password, then this field is required!'
+                  minLength: 32
+                  maxLength: 32
+                username:
+                  type: string
+                  minLength: 8
+                  maxLength: 50
+                  description: 'If grant_type === password, then this field is required!'
+          application/xml:
+            schema:
+              type: object
+              properties: {}
+        description: ''
+      tags:
+        - auth
+  '/users/{id}':
+    get:
+      summary: Get user info
+      tags:
+        - users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  password:
+                    type: string
+                    maxLength: 0
+              examples:
+                Successful:
+                  value:
+                    username: john.doe
+                    password: ''
+      operationId: 'get-users-:id'
+      description: Get information about a specific user. Only ADMIN allowed.
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+  /users/current:
+    get:
+      summary: Get own info
+      tags:
+        - users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  password:
+                    type: string
+                    maxLength: 0
+      operationId: get-users-current
+      description: Retrieve my own information
+components:
+  schemas:
+    User:
+      title: User
+      type: object
+      description: User model with all related information.
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        username:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 32
+          maxLength: 32
+        scope:
+          type: string
+          enum:
+            - ADMIN
+            - EDITOR
+            - MARKETING
+            - ORGANIZATION
+            - THERAPIST
+            - PACIENT
+        enabled:
+          type: boolean
+        alreadyLogged:
+          type: boolean
+      required:
+        - username
+        - scope
+        - enabled
+        - alreadyLogged
+    Error:
+      title: Error
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          enum:
+            - 400
+            - 401
+            - 403
+        error:
+          type: string
+        message:
+          type: string
+      x-examples:
+        Error 400:
+          statusCode: 400
+          error: Bad Request
+          message: 'child "body" fails because [child "beginDate" fails because ["beginDate" is required]]'
+      description: Error model received from API calls
+  securitySchemes: {}
+servers:
+  - url: 'http://localhost:3000/api'
+openapi: 3.0.0
