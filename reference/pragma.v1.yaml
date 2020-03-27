@@ -53,6 +53,9 @@ paths:
           name: orderByField
         - schema:
             type: string
+            enum:
+              - ASC
+              - DESC
           in: query
           name: orderByDirection
       tags:
@@ -439,6 +442,9 @@ paths:
           name: orderByField
         - schema:
             type: string
+            enum:
+              - ASC
+              - DESC
           in: query
           name: orderByDirection
     post:
@@ -579,6 +585,9 @@ paths:
           name: orderByField
         - schema:
             type: string
+            enum:
+              - ASC
+              - DESC
           in: query
           name: orderByDirection
   '/items/{id}':
@@ -786,6 +795,182 @@ paths:
             schema:
               $ref: '#/components/schemas/Price'
         description: ''
+  /folders:
+    get:
+      summary: List all folders
+      tags:
+        - folders
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Folder'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-folders
+      description: Allowed only for ADMIN and EDITOR roles.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - resource
+              - form
+          in: query
+          name: type
+        - schema:
+            type: string
+          in: query
+          name: orderByField
+        - schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+          in: query
+          name: orderByDirection
+    post:
+      summary: Create folder
+      operationId: post-folders
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Allowed only for ADMIN and EDITOR roles.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Folder'
+        description: ''
+      tags:
+        - folders
+  '/folders/{id}':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Retrieve specific folder
+      tags:
+        - folders
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-folders-id
+      description: Allowed only for ADMIN and EDITOR roles.
+    put:
+      summary: Edit folder
+      operationId: put-folders-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Allowed only for ADMIN and EDITOR roles.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Folder'
+      tags:
+        - folders
+  /folders/public:
+    get:
+      summary: Get public folders
+      tags:
+        - folders
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Folder'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-folders-public
+      description: No restrictions.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - resource
+              - form
+          in: query
+          name: type
+        - schema:
+            type: string
+          in: query
+          name: orderByField
+        - schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+          in: query
+          name: orderByDirection
 components:
   schemas:
     User:
@@ -1050,24 +1235,6 @@ components:
       title: Folder
       type: object
       description: 'Folder model used for resources and forms. It can have a parentFolder, or null in case it is at a root level'
-      properties:
-        id:
-          type: integer
-          minimum: 1
-        title:
-          type: string
-        description:
-          type: string
-        parentFolder:
-          $ref: '#/components/schemas/Folder'
-        type:
-          type: string
-          enum:
-            - resource
-            - form
-      required:
-        - title
-        - type
       x-examples:
         Root Resource folder:
           id: 1
@@ -1086,6 +1253,29 @@ components:
             description: All adiction resources here
             type: resource
             parentFolder: null
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+        description:
+          type: string
+        parentFolder:
+          $ref: '#/components/schemas/Folder'
+        type:
+          type: string
+          enum:
+            - resource
+            - form
+        disabled:
+          type: boolean
+      required:
+        - title
+        - type
+        - disabled
+      x-tags:
+        - models
   securitySchemes: {}
 servers:
   - url: 'http://localhost:3000/api'
