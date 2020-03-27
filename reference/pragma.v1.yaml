@@ -3,11 +3,9 @@ info:
   version: '1.0'
   description: All endpoints for Pragma project.
 paths:
-  /users:
+  /panel-users:
     get:
       summary: List Users
-      tags:
-        - users
       responses:
         '200':
           description: OK
@@ -16,22 +14,8 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
-              examples:
-                Retrieve list of users:
-                  value:
-                    - id: 1
-                      username: john.doe
-                      password: ''
-                      scope: ADMIN
-                      enabled: true
-                      alreadyLogged: true
-                    - id: 2
-                      username: john.doe2
-                      password: ''
-                      scope: MARKETING
-                      enabled: true
-                      alreadyLogged: false
+                  $ref: '#/components/schemas/PanelUser'
+              examples: {}
             application/xml:
               schema:
                 type: object
@@ -50,8 +34,8 @@ paths:
                     statusCode: 400
                     error: Bad Request
                     message: 'child "query" fails because [child "limit" fails because ["limit" must be a number]]'
-      operationId: get-users
-      description: List all users. Only allowed for Admin.
+      operationId: get-panel-users
+      description: Only allowed for ADMIN role.
       parameters:
         - schema:
             type: integer
@@ -71,9 +55,11 @@ paths:
             type: string
           in: query
           name: orderByDirection
+      tags:
+        - panel-users
     post:
       summary: Create User
-      operationId: post-users
+      operationId: post-panel-users
       responses:
         '201':
           description: Created
@@ -103,75 +89,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                User already exists:
-                  value:
-                    statudCode: 409
-                    error: Conflict
-                    internalCode: 1400
-                    message: The user exists already
-      description: Create new user. Only allowed for Admin.
+              examples: {}
+      description: Only allowed for ADMIN role.
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/PanelUser'
         description: ''
       tags:
-        - users
+        - panel-users
     parameters: []
-    put:
-      summary: Update user scope and enabled/disabled
-      operationId: put-users
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: integer
-                description: Number of rows updated
-              examples:
-                Successful update:
-                  value: 1
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Error due missing required field:
-                  value:
-                    statusCode: 400
-                    error: Bad Request
-                    message: 'child "body" fails because [child "scope" fails because ["scope" is required]]'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Id not found:
-                  value:
-                    statusCode: 404
-                    error: Not Found
-                    internalCode: 1101
-                    message: Error while trying to update.
-      description: 'Change specific user scope, and update if it is enabled or disabled'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      tags:
-        - users
-  /auth/scopes:
+  /panel-users/scopes:
     get:
       summary: List Scopes
-      tags:
-        - auth
       responses:
         '200':
           description: OK
@@ -195,13 +126,15 @@ paths:
                       name: ADMIN
                     - id: 2
                       name: MARKETING
-      operationId: get-auth
-      description: 'List all possible scopes. Only used by ADMIN user to give permissions to other users. '
+      operationId: get-panel-users-scopes
+      description: Only allowed for ADMIN role.
+      tags:
+        - panel-users
     parameters: []
-  /auth/login:
+  /users/login:
     post:
       summary: Login
-      operationId: post-auth-login
+      operationId: post-users-login
       responses:
         '200':
           description: OK
@@ -232,32 +165,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 400
-                  error:
-                    type: string
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
               examples:
                 Wrong User or Password:
                   value:
                     statusCode: 400
                     error: Bad Request
                     message: 'Invalid client: client is invalid'
-      description: Available for users to login to the system.
+      description: No restriction.
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              required:
-                - client_id
-                - client_secret
-                - grant_type
               properties:
                 client_id:
                   type: string
@@ -282,64 +202,55 @@ paths:
                   maxLength: 32
                 username:
                   type: string
-                  minLength: 8
-                  maxLength: 50
                   description: 'If grant_type === password, then this field is required!'
+                  format: email
+              required:
+                - client_id
+                - client_secret
+                - grant_type
           application/xml:
             schema:
               type: object
               properties: {}
         description: ''
       tags:
-        - auth
-  '/users/{id}':
-    get:
-      summary: Get user info
-      tags:
         - users
+    parameters: []
+  '/panel-users/{id}':
+    get:
+      summary: Retrieve panel user
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                Successful:
-                  value:
-                    id: 3
-                    username: john.doe
-                    password: ''
-                    scope: MARKETING
-                    enabled: true
-                    alreadyLogged: false
+                $ref: '#/components/schemas/PanelUser'
+              examples: {}
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                Query param wrong validation:
-                  value:
-                    statusCode: 400
-                    error: Bad Request
-                    message: 'child "params" fails because [child "id" fails because ["id" must be a positive number]]'
+              examples: {}
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              examples:
-                ID not found:
-                  value:
-                    statusCode: 404
-                    error: Not Found
-                    internalCode: 1103
-                    message: Error while trying to find by id.
-      operationId: 'get-users-:id'
-      description: Get information about a specific user. Only ADMIN allowed.
+              examples: {}
+      operationId: 'get-panel-users-:id'
+      description: Only allowed for ADMIN role.
+      tags:
+        - panel-users
     parameters:
       - schema:
           type: integer
@@ -347,11 +258,50 @@ paths:
         name: id
         in: path
         required: true
-  /users/current:
-    get:
-      summary: Get own info
+    put:
+      summary: Update panel user
+      operationId: 'put-panel-users-:id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: Number of rows updated
+              examples: {}
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+              examples: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples: {}
+      description: Only allowed for ADMIN role.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PanelUser'
       tags:
-        - users
+        - panel-users
+  /panel-users/current:
+    get:
+      summary: Get my panel user info
       responses:
         '200':
           description: OK
@@ -359,31 +309,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-              examples:
-                Get successful information:
-                  value:
-                    id: 3
-                    username: john.doe
-                    password: ''
-                    scope: MARKETING
-                    enabled: true
-                    alreadyLogged: false
-      operationId: get-users-current
-      description: Retrieve my own information
-  /auth/logout:
+        '':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PanelUser'
+              examples: {}
+      operationId: get-panel-users-current
+      description: No restriction.
+      tags:
+        - panel-users
+    parameters: []
+  /users/logout:
     post:
       summary: Logout
-      operationId: post-auth-logout
+      operationId: post-users-logout
       responses:
         '200':
           description: OK
+      description: No restriction.
       tags:
-        - auth
-      description: Logout for users
-  /auth/change-password:
+        - users
+    parameters: []
+  /users/change-password:
     put:
-      summary: Change own password
-      operationId: put-auth-change-password
+      summary: Change password
+      operationId: put-users-change-password
       responses:
         '200':
           description: OK
@@ -401,9 +352,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      tags:
-        - auth
-      description: Change own password. Id of user is gonna be calculated from auth.
+      description: No restriction.
       requestBody:
         content:
           application/json:
@@ -421,12 +370,430 @@ paths:
               required:
                 - password
                 - oldPassword
+      tags:
+        - users
+    parameters: []
+  /users/forgot-password:
+    put:
+      summary: Forgot password
+      operationId: put-users-forgot-password
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+              examples: {}
+      tags:
+        - users
+      description: No restriction.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  format: email
+              required:
+                - username
+        description: ''
+  /blog-posts:
+    get:
+      summary: List Posts
+      tags:
+        - blog-posts
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogPost'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-blog-posts
+      description: Only allowed for EDITOR or ADMIN roles.
+      parameters:
+        - schema:
+            type: integer
+            minimum: 1
+          in: query
+          name: limit
+        - schema:
+            type: integer
+            minimum: 0
+          in: query
+          name: offset
+        - schema:
+            type: string
+          in: query
+          name: orderByField
+        - schema:
+            type: string
+          in: query
+          name: orderByDirection
+    post:
+      summary: Create Post
+      operationId: post-blog-posts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: number
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - blog-posts
+      description: Only allowed for EDITOR or ADMIN roles.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogPost'
+  '/blog-posts/{id}':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Retrieve post
+      tags:
+        - blog-posts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogPost'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-blog-posts-id
+      description: Only allowed for EDITOR or ADMIN roles.
+    put:
+      summary: Update post
+      operationId: put-blog-posts-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - blog-posts
+      description: Only allowed for EDITOR or ADMIN roles.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlogPost'
+  /items:
+    get:
+      summary: List items
+      tags:
+        - items
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-items
+      description: Only allowed for ADMIN role.
+      parameters:
+        - schema:
+            type: integer
+            minimum: 1
+          in: query
+          name: limit
+        - schema:
+            type: integer
+            minimum: 0
+          in: query
+          name: offset
+        - schema:
+            type: string
+          in: query
+          name: orderByField
+        - schema:
+            type: string
+          in: query
+          name: orderByDirection
+  '/items/{id}':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Retrieve item
+      tags:
+        - items
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-items-id
+      description: Only allowed for ADMIN role.
+    put:
+      summary: Update item
+      operationId: put-items-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - items
+      description: Only allowed for ADMIN role.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+  /items/public:
+    get:
+      summary: List items with public info
+      tags:
+        - items
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemPublic'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-items-public
+      description: No restriction.
+  /blog-posts/public:
+    get:
+      summary: List public blog posts
+      tags:
+        - blog-posts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogPostPublic'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-blog-posts-public
+      description: No restrictions.
+  /prices:
+    get:
+      summary: List prices
+      tags:
+        - prices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Price'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-prices
+      description: No restrictions.
+  '/prices/{id}':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Retrieve price
+      tags:
+        - prices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Price'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-prices-id
+      description: No restrictions.
+    put:
+      summary: Update price
+      operationId: put-prices-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - prices
+      description: Only allowed for ADMIN role.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Price'
+        description: ''
 components:
   schemas:
     User:
       title: User
       type: object
       description: User model with all related information.
+      x-tags:
+        - models
       properties:
         id:
           type: integer
@@ -439,22 +806,15 @@ components:
           minLength: 32
           maxLength: 32
         scope:
-          type: string
-          enum:
-            - ADMIN
-            - EDITOR
-            - MARKETING
-            - ORGANIZATION
-            - THERAPIST
-            - PACIENT
-        enabled:
+          $ref: '#/components/schemas/Scope'
+        disabled:
           type: boolean
         alreadyLogged:
           type: boolean
       required:
         - username
         - scope
-        - enabled
+        - disabled
         - alreadyLogged
     Error:
       title: Error
@@ -487,19 +847,245 @@ components:
         - statusCode
         - error
         - message
+      x-tags:
+        - models
     Scope:
       title: Scope
       type: object
+      x-examples:
+        Scope for ADMIN:
+          id: 2
+          name: ADMIN
+          description: Here is a description for this role
+      description: Scope model for user permissions
+      x-tags:
+        - models
       properties:
         id:
           type: integer
         name:
           type: string
+        description:
+          type: string
+      required:
+        - id
+        - name
+        - description
+    PanelUser:
+      title: PanelUser
+      type: object
+      description: 'Panel user model, used for administration panel users with ADMIN, EDITOR or MARKETING scopes.'
       x-examples:
-        Scope for ADMIN:
+        User without a picture:
           id: 2
-          name: ADMIN
-      description: Scope model for user permissions
+          name: My Name
+          picture: ''
+          user:
+            id: 2
+            username: john.doe2
+            password: ''
+            scope:
+              id: 2
+              name: ADMIN
+              description: Here is a description for this role
+            enabled: true
+            alreadyLogged: false
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        picture:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - name
+      x-tags:
+        - models
+    BlogPost:
+      title: BlogPost
+      type: object
+      description: Blog post model for public Blog.
+      x-tags:
+        - models
+      x-examples:
+        New Blog Post:
+          id: 1
+          title: This is a new post
+          description: Here there is a description with all information to be shown.
+          hide: false
+          author:
+            id: 2
+            name: My Name
+            picture: ''
+            user:
+              id: 2
+              username: john.doe2
+              password: ''
+              scope:
+                id: 2
+                name: ADMIN
+                description: Here is a description for this role
+              enabled: true
+              alreadyLogged: false
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+        description:
+          type: string
+        author:
+          $ref: '#/components/schemas/PanelUser'
+        hide:
+          type: boolean
+      required:
+        - title
+        - description
+        - author
+        - hide
+    Item:
+      title: Item
+      type: object
+      description: "Item model created for all small information that changes dynamically in the web, but that doesn't make sense to have a specific CRUD for."
+      x-examples:
+        Terms and Conditions:
+          id: 1
+          key: terms_and_conditions
+          value: This are the terms and conditions to show.
+          allowEdition: true
+      x-tags:
+        - models
+      properties:
+        id:
+          type: number
+          minimum: 1
+        key:
+          type: string
+          minLength: 1
+          maxLength: 100
+        value:
+          type: string
+        allowEdition:
+          type: boolean
+      required:
+        - key
+        - value
+        - allowEdition
+    ItemPublic:
+      type: object
+      x-tags:
+        - models
+      x-examples:
+        Terms and Conditions:
+          id: 1
+          key: terms_and_conditions
+          value: This are the terms and conditions to show.
+      description: ItemPublic model with information for public sites. It only shows public information from Item model.
+      properties:
+        id:
+          type: number
+          minimum: 1
+        value:
+          type: string
+        key:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+        - value
+        - key
+    BlogPostPublic:
+      title: BlogPostPublic
+      type: object
+      x-examples:
+        New Blog Post:
+          id: 1
+          title: This is a new post
+          description: Here there is a description with all information to be shown.
+      x-tags:
+        - models
+      description: Blog post model for public Blog.
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        description:
+          type: string
+        title:
+          type: string
+      required:
+        - description
+        - title
+    Price:
+      title: Price
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        key:
+          type: string
+          maxLength: 50
+        value:
+          type: number
+        type:
+          type: string
+          enum:
+            - ARS
+            - USD
+      required:
+        - key
+        - value
+        - type
+      x-examples:
+        Promoción para 10 Pacientes en Pesos Argentinos:
+          id: 1
+          key: 10_pacientes_arg
+          value: 1999.99
+          type: ARS
+    Folder:
+      title: Folder
+      type: object
+      description: 'Folder model used for resources and forms. It can have a parentFolder, or null in case it is at a root level'
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+        description:
+          type: string
+        parentFolder:
+          $ref: '#/components/schemas/Folder'
+        type:
+          type: string
+          enum:
+            - resource
+            - form
+      required:
+        - title
+        - type
+      x-examples:
+        Root Resource folder:
+          id: 1
+          title: Adictions
+          description: All adiction resources here
+          type: resource
+          parentFolder: null
+        Non-route Resource folder:
+          id: 2
+          title: Alcoholism
+          description: All related to alcoholism
+          type: resource
+          parentFolder:
+            id: 1
+            title: Adictions
+            description: All adiction resources here
+            type: resource
+            parentFolder: null
   securitySchemes: {}
 servers:
   - url: 'http://localhost:3000/api'
