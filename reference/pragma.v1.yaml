@@ -971,6 +971,231 @@ paths:
               - DESC
           in: query
           name: orderByDirection
+  /resources:
+    get:
+      summary: List all resources
+      tags:
+        - resources
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-resources
+      description: Allowed only for ADMIN and EDITOR roles.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+          in: query
+          name: orderByDirection
+        - schema:
+            type: string
+          in: query
+          name: orderByField
+    post:
+      summary: Create resource
+      operationId: post-resources
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Allowed only for ADMIN and EDITOR roles.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resource'
+        description: ''
+      tags:
+        - resources
+  '/folders/{id}/resources':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    get:
+      summary: List all resources for specific folder
+      tags:
+        - folders
+        - resources
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-folders-id-resources
+      description: Allowed only for ADMIN and EDITOR roles.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: orderByField
+        - schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+          in: query
+          name: orderByDirection
+  '/folders/{id}/resources/public':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    get:
+      summary: List all public resources for specific folder
+      tags:
+        - folders
+        - resources
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-folders-id-resources-public
+      description: No restriction.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: orderByField
+        - schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+          in: query
+          name: orderByDirection
+  '/resourcers/{id}':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Retrieve specific resource
+      tags:
+        - resources
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-resourcers-id
+      description: Allowed only for ADMIN and EDITOR roles.
+    put:
+      summary: Edit resource
+      operationId: put-resourcers-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - resources
+      description: Allowed only for ADMIN and EDITOR roles.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resource'
+        description: ''
 components:
   schemas:
     User:
@@ -1274,6 +1499,58 @@ components:
         - title
         - type
         - disabled
+      x-tags:
+        - models
+    Resource:
+      title: Resource
+      type: object
+      description: Resource model for therapists files
+      x-tags:
+        - models
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+        description:
+          type: string
+        instructions:
+          type: string
+        references:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        disabled:
+          type: boolean
+        folder:
+          $ref: '#/components/schemas/Folder'
+      required:
+        - title
+        - images
+        - disabled
+    Tag:
+      title: Tag
+      type: object
+      description: Tag model used for resources and forms
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        key:
+          type: string
+      required:
+        - key
+      x-examples:
+        Tag example:
+          id: 1
+          key: adiction
       x-tags:
         - models
   securitySchemes: {}
