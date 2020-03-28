@@ -1231,34 +1231,22 @@ components:
       type: object
       x-examples:
         Error 400:
-          statusCode: 400
-          error: Bad Request
+          name: Bad Request
           message: 'child "body" fails because [child "beginDate" fails because ["beginDate" is required]]'
         Error 409:
-          statudCode: 409
-          error: Conflict
-          internalCode: 1400
+          name: Conflict
           message: The user exists already
       description: Error model received from API calls
+      x-tags:
+        - models
       properties:
-        statusCode:
-          type: integer
-          enum:
-            - 400
-            - 401
-            - 403
-        error:
+        name:
           type: string
         message:
           type: string
-        internalCode:
-          type: integer
       required:
-        - statusCode
-        - error
+        - name
         - message
-      x-tags:
-        - models
     Scope:
       title: Scope
       type: object
