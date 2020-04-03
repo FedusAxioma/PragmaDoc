@@ -1277,7 +1277,7 @@ components:
         User without a picture:
           id: 2
           name: My Name
-          picture: ''
+          imageId: 1
           user:
             id: 2
             username: john.doe2
@@ -1288,19 +1288,20 @@ components:
               description: Here is a description for this role
             enabled: true
             alreadyLogged: false
+      x-tags:
+        - models
       properties:
         id:
           type: integer
         name:
           type: string
-        picture:
-          type: string
+        imageId:
+          type: integer
+          minimum: 1
         user:
           $ref: '#/components/schemas/User'
       required:
         - name
-      x-tags:
-        - models
     BlogPost:
       title: BlogPost
       type: object
@@ -1339,6 +1340,10 @@ components:
           $ref: '#/components/schemas/PanelUser'
         hide:
           type: boolean
+        imagesIds:
+          type: array
+          items:
+            type: integer
       required:
         - title
         - description
@@ -1403,6 +1408,9 @@ components:
           id: 1
           title: This is a new post
           description: Here there is a description with all information to be shown.
+          imagesIds:
+            - 34
+            - 62
       x-tags:
         - models
       description: Blog post model for public Blog.
@@ -1414,6 +1422,10 @@ components:
           type: string
         title:
           type: string
+        imagesIds:
+          type: array
+          items:
+            type: integer
       required:
         - description
         - title
@@ -1507,10 +1519,10 @@ components:
           type: string
         references:
           type: string
-        images:
+        imagesIds:
           type: array
           items:
-            type: string
+            type: integer
         tags:
           type: array
           items:
@@ -1521,8 +1533,35 @@ components:
           $ref: '#/components/schemas/Folder'
       required:
         - title
-        - images
+        - imagesIds
         - disabled
+      x-examples:
+        Resource one:
+          id: 1
+          title: New Resource
+          description: Something here
+          instructions: '1. Yes, 2. No'
+          references: From there
+          imagesIds:
+            - 3
+            - 7
+          tags:
+            - one
+            - two
+          disabled: false
+          folder:
+            id: 4
+            title: folder 2
+            description: Another folder
+            type: resource
+            disabled: false
+            parentFolder:
+              id: 3
+              title: folder 1
+              description: This folder
+              type: resource
+              disabled: false
+              parentFolder: null
     Tag:
       title: Tag
       type: object
