@@ -1196,6 +1196,84 @@ paths:
             schema:
               $ref: '#/components/schemas/Resource'
         description: ''
+  '/resources/{id}/files/{fileId}':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+      - schema:
+          type: integer
+          minimum: 1
+        name: fileId
+        in: path
+        required: true
+    get:
+      summary: Get file url for specific resource and file
+      tags:
+        - resources
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-resources-id-files-fileId
+      description: 'Only allowed for THERAPIST, ADMIN or EDITOR roles.'
+  '/panel-users/{id}/files/{fileId}':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+      - schema:
+          type: integer
+          minimum: 1
+        name: fileId
+        in: path
+        required: true
+    get:
+      summary: Get profile image url for specific user and file
+      tags:
+        - panel-users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-panel-users-id-files-fileId
+      description: 'Only allowed for ADMIN, EDITOR or MARKETING roles.'
 components:
   schemas:
     User:
@@ -1456,6 +1534,8 @@ components:
           key: 10_pacientes_arg
           value: 1999.99
           type: ARS
+      x-tags:
+        - models
     Folder:
       title: Folder
       type: object
@@ -1580,6 +1660,27 @@ components:
           key: adiction
       x-tags:
         - models
+    File:
+      title: File
+      type: object
+      x-tags:
+        - models
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        url:
+          type: string
+      required:
+        - url
+      x-examples:
+        Image:
+          id: 4
+          url: 'https://something-here'
+        PDF:
+          id: 7
+          url: 'https://something-else'
+      description: This model is used for both images and PDFs files
   securitySchemes: {}
 servers:
   - url: 'http://localhost:3000/api'
