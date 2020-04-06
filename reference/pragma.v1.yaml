@@ -1196,6 +1196,45 @@ paths:
             schema:
               $ref: '#/components/schemas/Resource'
         description: ''
+  '/files/{id}':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get specific file
+      tags:
+        - files
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FIle'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: get-files-id
+      description: Allowed only depending on roles and file type.
 components:
   schemas:
     User:
@@ -1567,17 +1606,23 @@ components:
     FIle:
       title: FIle
       type: object
+      description: File model used for images or PDFs
+      x-tags:
+        - models
       properties:
         id:
           type: integer
           minimum: 1
         url:
           type: string
+        type:
+          type: string
+          enum:
+            - PROFILE
+            - POST
+            - RESOURCE
       required:
         - url
-      description: File model used for images or PDFs
-      x-tags:
-        - models
   securitySchemes: {}
 servers:
   - url: 'http://localhost:3000/api'
