@@ -1258,7 +1258,7 @@ paths:
       description: Only allowed for own user.
       requestBody:
         content:
-          image/png:
+          multipart/form-data:
             schema:
               type: string
               format: binary
@@ -1323,7 +1323,7 @@ paths:
       description: Only allowed for ADMIN or EDITOR roles.
       requestBody:
         content:
-          image/png:
+          multipart/form-data:
             schema:
               type: string
       tags:
