@@ -1235,6 +1235,59 @@ paths:
                 $ref: '#/components/schemas/Error'
       operationId: get-files-id
       description: Allowed only depending on roles and file type.
+  /panel-users/current/files:
+    post:
+      summary: Create new profile picture
+      operationId: post-panel-users-current-files
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - panel-users
+      description: Only allowed for own user.
+      requestBody:
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      parameters: []
+    put:
+      summary: Update profile picture relation
+      operationId: put-panel-users-current-files
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - panel-users
+      description: Only allowed for own user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              minimum: 1
 components:
   schemas:
     User:
