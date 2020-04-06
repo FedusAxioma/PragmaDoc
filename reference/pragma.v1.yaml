@@ -1289,7 +1289,7 @@ components:
         User without a picture:
           id: 2
           name: My Name
-          picture: ''
+          imageId: 3
           user:
             id: 2
             username: john.doe2
@@ -1300,19 +1300,20 @@ components:
               description: Here is a description for this role
             enabled: true
             alreadyLogged: false
+      x-tags:
+        - models
       properties:
         id:
           type: integer
         name:
           type: string
-        picture:
-          type: string
+        imageId:
+          type: integer
+          minimum: 1
         user:
           $ref: '#/components/schemas/User'
       required:
         - name
-      x-tags:
-        - models
     BlogPost:
       title: BlogPost
       type: object
@@ -1325,6 +1326,7 @@ components:
           title: This is a new post
           description: Here there is a description with all information to be shown.
           hide: false
+          imageId: 2
           author:
             id: 2
             name: My Name
@@ -1351,6 +1353,9 @@ components:
           $ref: '#/components/schemas/PanelUser'
         hide:
           type: boolean
+        imageId:
+          type: integer
+          minimum: 1
       required:
         - title
         - description
@@ -1415,6 +1420,7 @@ components:
           id: 1
           title: This is a new post
           description: Here there is a description with all information to be shown.
+          imageId: 3
       x-tags:
         - models
       description: Blog post model for public Blog.
@@ -1426,6 +1432,9 @@ components:
           type: string
         title:
           type: string
+        imageId:
+          type: integer
+          minimum: 1
       required:
         - description
         - title
@@ -1521,10 +1530,10 @@ components:
           type: string
         references:
           type: string
-        images:
+        imagesIds:
           type: array
           items:
-            type: string
+            type: integer
         tags:
           type: array
           items:
@@ -1535,7 +1544,7 @@ components:
           $ref: '#/components/schemas/Folder'
       required:
         - title
-        - images
+        - imagesIds
         - disabled
     Tag:
       title: Tag
