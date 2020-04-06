@@ -1288,6 +1288,65 @@ paths:
             schema:
               type: integer
               minimum: 1
+  /blog-posts/files:
+    parameters: []
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses: {}
+      operationId: get-blog-posts-id-files
+  '/blog-posts/{id}/files':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    post:
+      summary: Create new post picture
+      operationId: post-blog-posts-id-files
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Only allowed for ADMIN or EDITOR roles.
+      requestBody:
+        content:
+          image/png:
+            schema:
+              type: string
+      tags:
+        - blog-posts
+    put:
+      summary: Update post picture
+      operationId: put-blog-posts-id-files
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+      tags:
+        - blog-posts
+      description: Only allowed for ADMIN or EDITOR roles.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              minimum: 1
 components:
   schemas:
     User:
