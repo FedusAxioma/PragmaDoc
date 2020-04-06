@@ -1196,84 +1196,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Resource'
         description: ''
-  '/resources/{id}/files/{fileId}':
-    parameters:
-      - schema:
-          type: integer
-          minimum: 1
-        name: id
-        in: path
-        required: true
-      - schema:
-          type: integer
-          minimum: 1
-        name: fileId
-        in: path
-        required: true
-    get:
-      summary: Get file url for specific resource and file
-      tags:
-        - resources
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: string
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      operationId: get-resources-id-files-fileId
-      description: 'Only allowed for THERAPIST, ADMIN or EDITOR roles.'
-  '/panel-users/{id}/files/{fileId}':
-    parameters:
-      - schema:
-          type: integer
-          minimum: 1
-        name: id
-        in: path
-        required: true
-      - schema:
-          type: integer
-          minimum: 1
-        name: fileId
-        in: path
-        required: true
-    get:
-      summary: Get profile image url for specific user and file
-      tags:
-        - panel-users
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: string
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      operationId: get-panel-users-id-files-fileId
-      description: 'Only allowed for ADMIN, EDITOR or MARKETING roles.'
 components:
   schemas:
     User:
@@ -1309,22 +1231,34 @@ components:
       type: object
       x-examples:
         Error 400:
-          name: Bad Request
+          statusCode: 400
+          error: Bad Request
           message: 'child "body" fails because [child "beginDate" fails because ["beginDate" is required]]'
         Error 409:
-          name: Conflict
+          statudCode: 409
+          error: Conflict
+          internalCode: 1400
           message: The user exists already
       description: Error model received from API calls
-      x-tags:
-        - models
       properties:
-        name:
+        statusCode:
+          type: integer
+          enum:
+            - 400
+            - 401
+            - 403
+        error:
           type: string
         message:
           type: string
+        internalCode:
+          type: integer
       required:
-        - name
+        - statusCode
+        - error
         - message
+      x-tags:
+        - models
     Scope:
       title: Scope
       type: object
@@ -1355,7 +1289,7 @@ components:
         User without a picture:
           id: 2
           name: My Name
-          imageId: 1
+          picture: ''
           user:
             id: 2
             username: john.doe2
@@ -1366,20 +1300,19 @@ components:
               description: Here is a description for this role
             enabled: true
             alreadyLogged: false
-      x-tags:
-        - models
       properties:
         id:
           type: integer
         name:
           type: string
-        imageId:
-          type: integer
-          minimum: 1
+        picture:
+          type: string
         user:
           $ref: '#/components/schemas/User'
       required:
         - name
+      x-tags:
+        - models
     BlogPost:
       title: BlogPost
       type: object
@@ -1418,10 +1351,6 @@ components:
           $ref: '#/components/schemas/PanelUser'
         hide:
           type: boolean
-        imagesIds:
-          type: array
-          items:
-            type: integer
       required:
         - title
         - description
@@ -1486,9 +1415,6 @@ components:
           id: 1
           title: This is a new post
           description: Here there is a description with all information to be shown.
-          imagesIds:
-            - 34
-            - 62
       x-tags:
         - models
       description: Blog post model for public Blog.
@@ -1500,10 +1426,6 @@ components:
           type: string
         title:
           type: string
-        imagesIds:
-          type: array
-          items:
-            type: integer
       required:
         - description
         - title
@@ -1599,10 +1521,10 @@ components:
           type: string
         references:
           type: string
-        imagesIds:
+        images:
           type: array
           items:
-            type: integer
+            type: string
         tags:
           type: array
           items:
@@ -1613,35 +1535,8 @@ components:
           $ref: '#/components/schemas/Folder'
       required:
         - title
-        - imagesIds
+        - images
         - disabled
-      x-examples:
-        Resource one:
-          id: 1
-          title: New Resource
-          description: Something here
-          instructions: '1. Yes, 2. No'
-          references: From there
-          imagesIds:
-            - 3
-            - 7
-          tags:
-            - one
-            - two
-          disabled: false
-          folder:
-            id: 4
-            title: folder 2
-            description: Another folder
-            type: resource
-            disabled: false
-            parentFolder:
-              id: 3
-              title: folder 1
-              description: This folder
-              type: resource
-              disabled: false
-              parentFolder: null
     Tag:
       title: Tag
       type: object
@@ -1660,11 +1555,9 @@ components:
           key: adiction
       x-tags:
         - models
-    File:
-      title: File
+    FIle:
+      title: FIle
       type: object
-      x-tags:
-        - models
       properties:
         id:
           type: integer
@@ -1673,14 +1566,9 @@ components:
           type: string
       required:
         - url
-      x-examples:
-        Image:
-          id: 4
-          url: 'https://something-here'
-        PDF:
-          id: 7
-          url: 'https://something-else'
-      description: This model is used for both images and PDFs files
+      description: File model used for images or PDFs
+      x-tags:
+        - models
   securitySchemes: {}
 servers:
   - url: 'http://localhost:3000/api'
