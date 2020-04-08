@@ -1433,15 +1433,16 @@ components:
           maxLength: 32
         scope:
           $ref: '#/components/schemas/Scope'
-        disabled:
+        isDisabled:
           type: boolean
         alreadyLogged:
           type: boolean
       required:
         - username
         - scope
-        - disabled
+        - isDisabled
         - alreadyLogged
+      x-examples: {}
     Error:
       title: Error
       type: object
@@ -1541,7 +1542,7 @@ components:
           id: 1
           title: This is a new post
           description: Here there is a description with all information to be shown.
-          hide: false
+          isDisabled: false
           imageId: 2
           author:
             id: 2
@@ -1567,7 +1568,7 @@ components:
           type: string
         author:
           $ref: '#/components/schemas/PanelUser'
-        hide:
+        isDisabled:
           type: boolean
         imageId:
           type: integer
@@ -1576,7 +1577,7 @@ components:
         - title
         - description
         - author
-        - hide
+        - isDisabled
     Item:
       title: Item
       type: object
@@ -1657,6 +1658,15 @@ components:
     Price:
       title: Price
       type: object
+      x-examples:
+        Promoción para 10 Pacientes en Pesos Argentinos:
+          id: 1
+          key: 10_pacientes_arg
+          value: 1999.99
+          type: ARS
+          isDisabled: false
+      x-tags:
+        - models
       properties:
         id:
           type: integer
@@ -1671,18 +1681,14 @@ components:
           enum:
             - ARS
             - USD
+        isDisabled:
+          type: boolean
       required:
         - key
         - value
         - type
-      x-examples:
-        Promoción para 10 Pacientes en Pesos Argentinos:
-          id: 1
-          key: 10_pacientes_arg
-          value: 1999.99
-          type: ARS
-      x-tags:
-        - models
+        - isDisabled
+      description: 'Price model that is used to show prices in public web, but also to keep number on annual income.'
     Folder:
       title: Folder
       type: object
@@ -1694,17 +1700,21 @@ components:
           description: All adiction resources here
           type: resource
           parentFolder: null
+          isDisabled: false
         Non-route Resource folder:
           id: 2
           title: Alcoholism
           description: All related to alcoholism
           type: resource
+          isDisabled: false
           parentFolder:
             id: 1
             title: Adictions
             description: All adiction resources here
             type: resource
             parentFolder: null
+      x-tags:
+        - models
       properties:
         id:
           type: integer
@@ -1720,14 +1730,12 @@ components:
           enum:
             - resource
             - form
-        disabled:
+        isDisabled:
           type: boolean
       required:
         - title
         - type
-        - disabled
-      x-tags:
-        - models
+        - isDisabled
     Resource:
       title: Resource
       type: object
@@ -1753,15 +1761,15 @@ components:
         tags:
           type: array
           items:
-            type: string
-        disabled:
+            $ref: '#/components/schemas/Tag'
+        isDisabled:
           type: boolean
         folder:
           $ref: '#/components/schemas/Folder'
       required:
         - title
         - imagesIds
-        - disabled
+        - isDisabled
     Tag:
       title: Tag
       type: object
