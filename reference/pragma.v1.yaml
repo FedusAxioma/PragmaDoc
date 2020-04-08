@@ -1288,13 +1288,6 @@ paths:
             schema:
               type: integer
               minimum: 1
-  /blog-posts/files:
-    parameters: []
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses: {}
-      operationId: get-blog-posts-id-files
   '/blog-posts/{id}/files':
     parameters:
       - schema:
@@ -1347,6 +1340,78 @@ paths:
             schema:
               type: integer
               minimum: 1
+  '/resources/{id}/files/':
+    parameters:
+      - schema:
+          type: integer
+          minimum: 1
+        name: id
+        in: path
+        required: true
+    post:
+      summary: Create new resource
+      operationId: post-resources-id-files
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Only allowed for ADMIN and EDITOR roles.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+      tags:
+        - resources
+    put:
+      summary: Update resource files
+      operationId: put-resources-id-files
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Only allowed for ADMIN and EDITOR roles.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+        description: ''
+      tags:
+        - resources
 components:
   schemas:
     User:
