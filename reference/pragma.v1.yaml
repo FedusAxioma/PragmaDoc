@@ -836,6 +836,10 @@ paths:
               - DESC
           in: query
           name: orderByDirection
+        - schema:
+            type: number
+          in: query
+          name: parentFolderId
     post:
       summary: Create folder
       operationId: post-folders
@@ -1005,6 +1009,10 @@ paths:
             type: string
           in: query
           name: orderByField
+        - schema:
+            type: number
+          in: query
+          name: folderId
     post:
       summary: Create resource
       operationId: post-resources
